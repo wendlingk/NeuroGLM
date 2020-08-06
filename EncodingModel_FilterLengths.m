@@ -14,13 +14,15 @@ cell_choice = 1:1:size(sps,2); % Include index for relevant neurons
 ncells = length(cell_choice);
 sps = sps(:,cell_choice); % Edit cell_choice to select subset of neurons
 
+%% 1. Curate Data
+
 slen = length(Stim);
 sps = sps(1:slen,:);
 Stim = Stim(1:slen);
 swid = 1;  % Stimulus width  (pixels); must match # pixels in stim filter
 tinit = dt*(0:1:slen-1).'; % Index for time
 
-%% DOWNSAMPLING
+%% 2. Downsampling
 
 down = 5; % Defines how many data points will be assessed together
 slen = floor(slen/down); % Must divide slen or we have to do another method
@@ -34,7 +36,7 @@ if down > 1
     Stim = interp1(tinit(1:slen*down),Stim(1:slen*down),tstep,'pchip');
 end
 
-%% Set Up Training and Validation Sets
+%% 3. Set Up Training and Validation Sets
 
 negloglik = zeros(length(k_length),length(hpeakvector));
 stimlength = zeros(length(k_length),length(hpeakvector));
@@ -44,16 +46,17 @@ for m = 1:length(train_vector)
         
 [nval,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = CrossValidationSets(sets,train_index,Stim,sps,tstep);
 
-%% 1.  Set parameters and display for GLM % =============================
 
 for n = 1:length(k_length)
     nkt = k_length(n);
     nkt = round(nkt/down); % Update filter length (so it's the same time)
+    
+%% 4.  Set parameters and display for GLM 
 
 % makeSimStruct_GLM(nkt,dtStim,dtSp); % Create GLM structure with default params
 ggsim = makeSimStruct_GLM(nkt,dt,dt); % Create GLM structure with default params
 
-%% 3. Setup fitting params for random training set %=====================
+%% 5. Setup fitting params for random training set 
 
 % Compute the STA
 sta = zeros(nkt,ncells);
@@ -92,7 +95,7 @@ clearvars tempneglog temprr
 negloglival0 = sum(negloglival0_partial);
 fprintf('Initial negative log-likelihood: %.5f\n', negloglival0);
 
-%% 4. Do ML fitting %=====================
+%% 6. Do ML fitting %=====================
 
 % Because the cells are uncoupled, the encoding models are done separately
 opts = {'display', 'iter', 'maxiter', 200}; % options for fminunc
@@ -122,7 +125,7 @@ info_train(m).PostFilterLength = postlength;
 
 end
 
-%% 6. Negloglik Plots
+%% 7. Negloglik Plots
 
 NLL = zeros(size(info_train(1).NLL));
 % -2LL ~ Chi-squared distribution
