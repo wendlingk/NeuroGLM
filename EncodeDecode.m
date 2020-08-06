@@ -17,12 +17,15 @@ hpeakFinal = .18;   % time (s) of peak of last basis vector for h
 nkbasis = 15;  % number of basis vectors for representing k
 nhbasis = 15;  % number of basis vectors for representing h
 
+
 %% 1. CURATE DATA
+
 slen = length(Stim);
 sps = sps(1:slen,:);
 Stim = Stim(1:slen,:);
 swid = size(Stim,2);  % Stimulus width  (pixels); must match # pixels in stim filter
 tinit = dt*(0:1:slen-1).'; % Index for time
+
 
 %% 2. DOWNSAMPLING
 
@@ -45,6 +48,7 @@ tstep=tstep.';
 Stim = Stim.';
 sps = tempsps;
 
+
 %% 3. SET UP TRAINING AND VALIDATION SETS
 
 for popsize = 1:length(N)
@@ -66,10 +70,12 @@ sets = histcounts(y,length(cell_choice)); % Number of training sets from each ce
 
 [ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets(sets,range,fraction,Stim,sps,tstep);
 
+
 %% 4.  SET PARAMETERS AND DISPLAY FOR GLM
 
 % makeSimStruct_GLM(nkt,dtStim,dtSp) 
 ggsim = makeSimStruct_GLM(nkt,dt,dt); % Create GLM structure with default params
+
 
 %% 5. SETUP FITTING PARAMETERS FOR RANDOMLY SELECTED TRAINING SET
 
@@ -105,6 +111,7 @@ clearvars tempneglog temprr
 negloglival0 = sum(negloglival0_partial);
 fprintf('Initial negative log-likelihood: %.5f\n', negloglival0);
 
+
 %% 6. Do ML FITTING OF GLMs
 
 % Because the cells are uncoupled, the encoding models are done separately
@@ -121,6 +128,7 @@ clearvars tempgg1 tempnegloglival
 negloglival1 = sum(negloglival1_partial);
 fprintf('Model negative log-likelihood: %.5f\n', negloglival1);
 
+
 %% 7. DETERMINE AUTOCORRELATION STRUCTURE OF STIMULUS
 corrlength = floor(val_frac*slentrain);
 Burn = 0;
@@ -130,6 +138,7 @@ acf(end+1:end+Burn) = 0;
 stimCovMat = toeplitz(acf);
 
 numStims= size(Stimval,2);
+
 
 %% 8. SET UP PRIOR FOR STIMULUS DECODING
 
@@ -146,6 +155,7 @@ end
 stimprior = stimprior(Burn+1:end,:);
 stimCovMat= stimCovMat(Burn+1:end, Burn+1:end);
 
+
 %% 9. CALL GLMs FOR REQUESTED CELLS
 
 numModels = length(gg1);
@@ -156,6 +166,7 @@ numSimRepeats = 50;
 testInterval = [0 nkt];
 maxSpikes = 100;
 
+
 %% 10. INITIATE BAYES STIM DECODER
 
 stimInterval = [tval(1,:); tval(corrlength,:)];
@@ -163,7 +174,8 @@ dtDecoding = dt;
 initStim=stimprior;
 
 spikeTimes = spsval;
-[optStim, exitflag, fval, hessian] = bayesStimDecoder_Fall2019(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim);
+[optStim, exitflag, fval, hessian] = bayesStimDecoder(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim);
+
 
 %% 11. HETEROGENEITY AND ERROR CALCULATION
 
