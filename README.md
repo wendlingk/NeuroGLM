@@ -5,7 +5,7 @@ Directory contains one .mex file (**spikeconv_mex.mexw64**) but otherwise all fi
 
 Example Data: **FakeData_All.mat**
 
-Pillow Lab's directory *GLMspiketools* (https://github.com/pillowlab/GLMspiketools) was helpful in the creation of the encoding and decoding scripts for this project and for some of the sub-functions. In addition, Shreejoy Tripathy's directory *mitral_cell_diversity* (https://github.com/stripathy/mitral_cell_diversity) proved useful for providing some of the other sub-functions.
+Pillow Lab's directories *GLMspiketraintutorial* (https://github.com/pillowlab/GLMspiketraintutorial) and *GLMspiketools* (https://github.com/pillowlab/GLMspiketools) were extremely helpful in the creation of the encoding portions of the scripts for this project, in addition to providing some of the necessary sub-functions drawn directly from his work. Shreejoy Tripathy's directory *mitral_cell_diversity* (https://github.com/stripathy/mitral_cell_diversity) was instrumental in the decoding portions of the scripts, including some key sub-functions. The functions **bayesStimDecoder.m** and **bayesStimDecodeLogli.m** are modifications of the same files in his directory.
 
 Four main scripts:
 - **EncodeDecode.m**: Creates randomly selected networks of neurons for encoding GLMs and then decodes a composite stimulus. Parameters can be adjusted in the first section. This script is useful for evaluating neural heterogeneity, as training sets are randomly selected from a time interval (whose size is declared by the *range* parameter) rather than a specific time index. This makes it possible to select the same cell multiple times, just at different time steps, producing a wide domain of heterogeneity from fairly homogeneous networks to highly heterogeneous networks. Training sets are still somewhat synchronous in time between cells, with the decoding validation interval coming after the training selection region of the time series.
@@ -18,4 +18,4 @@ Training and validation sets are created differently depending on the script use
 - **EncodingSets_ValFollowing.m** is a function called within **EncodeDecode_ValFollowing.m**
 - **CrossValidationSets.m** is a function called within **EncodingModel_FilterLengths.m**
 
-The functions **bayesStimDecoder.m** and **bayesStimDecodeLogli.m** are modifications of the same files in Tripathy's neural GLM directory. All other functions in the directory not yet mentioned come directly from Shreejoy Tripathy's directory *mitral_cell_diversity*.
+Any files from the directory not mentioned before are drawn directly from the *GLMspiketools* and *mitral_cell_diversity* directories.
