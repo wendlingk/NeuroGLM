@@ -1,5 +1,5 @@
 % function [neglogli, grad, hessian] = bayesStimDecoderLogli(prs, inputParms)
-function [neglogli, grad, hessian] = bayesStimDecoderLogli_Fall2019(prs, inputParms)
+function [neglogli, grad, hessian] = bayesStimDecoderLogli(prs, inputParms)
 
 
 kMat = inputParms.kMat;
