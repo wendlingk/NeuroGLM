@@ -126,7 +126,21 @@ negloglival1 = sum(negloglival1_partial);
 fprintf('Model negative log-likelihood: %.5f\n', negloglival1);
 
 
-%% 7. DETERMINE AUTOCORRELATION STRUCTURE OF STIMULUS
+%% 7. COMPARE ACTUAL CUMULATIVE SPIKES TO CUMULATIVE SPIKES PREDICTED BY GLMs
+
+for j = 1:ntrain
+    [prob(:,j),actual_spikes(j)] = EncodingModel_Validation(gg1(j),Stimval,spsval(:,j),dt);
+    figure
+    plot(tval,cumsum(spsval(:,j)))
+    hold on
+    plot(tval,cumsum(prob(:,j)))
+    xlabel('Time (s)')
+    ylabel('Cumulative Spikes')
+    legend('Actual','Predicted')
+end
+
+
+%% 8. DETERMINE AUTOCORRELATION STRUCTURE OF STIMULUS
 
 corrlength = floor(val_frac*slentrain);
 Burn = 0;
@@ -138,7 +152,7 @@ stimCovMat = toeplitz(acf);
 numStims= size(Stimval,2);
 
 
-%% 8. SET UP PRIOR FOR STIMULUS DECODING
+%% 9. SET UP PRIOR FOR STIMULUS DECODING
 
 [cholMat,flag] = chol(stimCovMat); % Cholesky decomposition of cov matrix
 choleskyflag(k) = flag; % Track when matrix is not invertible
@@ -154,7 +168,7 @@ stimprior = stimprior(Burn+1:end,:);
 stimCovMat= stimCovMat(Burn+1:end, Burn+1:end);
 
 
-%% 9. CALL GLMs FOR REQUESTED CELLS
+%% 10. CALL GLMs FOR REQUESTED CELLS
 
 numModels = length(gg1);
 % Rename cells called from group
@@ -165,7 +179,7 @@ testInterval = [0 nkt];
 maxSpikes = 100;
 
 
-%% 10. INITIATE BAYES STIM DECODER
+%% 11. INITIATE BAYES STIM DECODER
 
 stimInterval = [tval(1,:); tval(corrlength,:)];
 dtDecoding = dt;
@@ -175,7 +189,7 @@ spikeTimes = spsval;
 [optStim, exitflag, fval, hessian] = bayesStimDecoder(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim);
 
 
-%% 11. HETEROGENEITY AND ERROR CALCULATION
+%% 12. HETEROGENEITY AND ERROR CALCULATION
 
 abserror_decoding = abs(Stimval - optStim);
 
