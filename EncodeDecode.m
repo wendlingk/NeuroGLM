@@ -64,7 +64,7 @@ clearvars ntrain set_index Stimtrain Stimval spstrain spsval ttrain tval slentra
 y = datasample(cell_choice,ncells);
 sets = histcounts(y,length(cell_choice)); % Number of training sets from each cell
 
-[ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets_Homog(sets,range,fraction,Stim,sps,tstep);
+[ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets(sets,range,fraction,Stim,sps,tstep);
 
 %% 4.  SET PARAMETERS AND DISPLAY FOR GLM
 
