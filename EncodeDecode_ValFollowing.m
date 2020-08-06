@@ -12,6 +12,7 @@ nkt = 160;    % Number of time bins in stimulus filter k
 nhbasis = 15;  % number of basis vectors for representing h
 hpeakFinal = .18;   % time of peak of last basis vector for h
 
+
 %% 1. CURATE DATA
 
 slen = length(Stim);
@@ -19,6 +20,7 @@ sps = sps(1:slen,:);
 Stim = Stim(1:slen);
 swid = size(Stim,2);  % Stimulus width  (pixels); must match # pixels in stim filter
 tinit = dt*(0:1:slen-1).'; % Index for time
+
 
 %% 2. DOWNSAMPLING
 
@@ -39,6 +41,7 @@ end
 tstep=tstep.';
 Stim = Stim.';
 sps = tempsps;
+
 
 %% 3. SET UP TRAINING AND VALIDATION SETS
 
@@ -61,6 +64,7 @@ clearvars ntrain set_index Stimtrain Stimval spstrain spsval ttrain tval slentra
 cells = sort(datasample(cell_choice,ncells,'Replace',false));
 
 [ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets_ValFollowing(cells,train_frac,val_frac,Stim,sps,tstep);
+
 
 %% 4. SET PARAMETERS AND DISPLAY FOR GLM
 
@@ -103,6 +107,7 @@ clearvars tempneglog temprr
 negloglival0 = sum(negloglival0_partial);
 fprintf('Initial negative log-likelihood: %.5f\n', negloglival0);
 
+
 %% 6. DO ML FITTING 
 
 % Because the cells are uncoupled, the encoding models are done separately
@@ -120,6 +125,7 @@ negloglival1 = sum(negloglival1_partial);
 
 fprintf('Model negative log-likelihood: %.5f\n', negloglival1);
 
+
 %% 7. DETERMINE AUTOCORRELATION STRUCTURE OF STIMULUS
 
 corrlength = floor(val_frac*slentrain);
@@ -130,6 +136,7 @@ acf(end+1:end+Burn) = 0;
 stimCovMat = toeplitz(acf);
 
 numStims= size(Stimval,2);
+
 
 %% 8. SET UP PRIOR FOR STIMULUS DECODING
 
@@ -146,6 +153,7 @@ end
 stimprior = stimprior(Burn+1:end,:);
 stimCovMat= stimCovMat(Burn+1:end, Burn+1:end);
 
+
 %% 9. CALL GLMs FOR REQUESTED CELLS
 
 numModels = length(gg1);
@@ -156,6 +164,7 @@ numSimRepeats = 50;
 testInterval = [0 nkt];
 maxSpikes = 100;
 
+
 %% 10. INITIATE BAYES STIM DECODER
 
 stimInterval = [tval(1,:); tval(corrlength,:)];
@@ -163,7 +172,8 @@ dtDecoding = dt;
 initStim=stimprior;
 
 spikeTimes = spsval;
-[optStim, exitflag, fval, hessian] = bayesStimDecoder_Fall2019(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim);
+[optStim, exitflag, fval, hessian] = bayesStimDecoder(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim);
+
 
 %% 11. HETEROGENEITY AND ERROR CALCULATION
 
@@ -214,3 +224,6 @@ Decoding_Stats(popsize).CholeskyFlag = choleskyflag;
 
 end
 toc
+
+save('Decoding_Stats_ValFollowing.mat','Decoding_Stats_ValFollowing')
+
