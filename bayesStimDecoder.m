@@ -1,7 +1,7 @@
 % this is the basic bayesStimDecoder, it seems to perform decoding
 % correctly as long as the dt of the stimulus is 1 msec
 
-function [optStim, exitflag, fval, hessian] = bayesStimDecoder_Fall2019(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim)
+function [optStim, exitflag, fval, hessian] = bayesStimDecoder(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim)
 
 numCells = length(cellModels);
 tPts = stimInterval(1):dtDecoding:stimInterval(2);
@@ -62,7 +62,7 @@ else
 end
 
 prs0 = currEstStim;
-fxn = @(prs)bayesStimDecoderLogli_Fall2019(prs,inputParms);
+fxn = @(prs)bayesStimDecoderLogli(prs,inputParms);
 
 % opts = optimset('Gradobj','on','Hessian','on', 'maxIter', 1000, 'TolFun', 1e-8, 'TolX', 1e-8);
 % opts = optimset('Gradobj','on','Hessian','on', 'display', 'iter');
@@ -71,7 +71,7 @@ opts = optimset('Gradobj','on','Hessian','on', 'MaxFunEvals', 100000, 'MaxIter',
 [prs,fval,exitflag] = fminunc(fxn,prs0,opts);
 
 if nargout > 3 % Compute Hessian if desired
-    [fval,gradval,hessian] = bayesStimDecoderLogli_Fall2019(prs, inputParms);
+    [fval,gradval,hessian] = bayesStimDecoderLogli(prs, inputParms);
 end
 
 optStim = prs; 
