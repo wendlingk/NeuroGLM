@@ -1,4 +1,4 @@
-function [prob,actual_spikes] = EncModel_Val(gg1,Stimval,spsval,dt)
+function [prob,actual_spikes] = EncodingModel_Validation(gg1,Stimval,spsval,dt)
 
 % gg1: Model structure that includes stimulus, post-spike filters, and
 % constant correction
