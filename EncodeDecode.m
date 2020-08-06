@@ -1,9 +1,10 @@
 % MAT file: 
 % - 'sps' (spike trains, each column represents a unique cell
-% - 'Stim' (stimulus, assumes Gaussian but can change in Section 8
+% - 'Stim' (stimulus, assumes Gaussian but can change in Section 8)
+% - 'dt' (time step)
 load('FakeData_All.mat') 
 
-runs = 2;
+runs = 1000; % Number of networks randomly selected for each network size
 cell_choice = 1:1:size(sps,2); % Index for relevant neurons
 N = [1 2 3 4 5]; % Network sizes being studied
 range = 500; % Range of time interval (ms) from which cells are randomly selected
@@ -12,7 +13,7 @@ val_frac=0.3; % Fraction of training set length for validation set
 
 % Set GLM parameters for fitting, including bases 
 nkt = 160;    % Number of time bins in stimulus filter k
-hpeakFinal = .18;   % time of peak of last basis vector for h
+hpeakFinal = .18;   % time (s) of peak of last basis vector for h
 nkbasis = 15;  % number of basis vectors for representing k
 nhbasis = 15;  % number of basis vectors for representing h
 
