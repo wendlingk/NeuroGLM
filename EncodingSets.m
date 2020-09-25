@@ -1,8 +1,8 @@
-function [ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets_Homog(sets,range,fraction,Stim,sps,tstep)
+function [ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets(sets,range,train_frac,val_frac,Stim,sps,tstep)
  
 slen = length(Stim);
-slentrain = floor(fraction*slen); 
-slenval = floor(0.3*fraction*slen); % Validation set must be smaller to account for creation of prior from ACF
+slentrain = floor(train_frac*slen); 
+slenval = floor(val_frac*train_frac*slen); % Validation set must be smaller to account for creation of prior from ACF
 val_index = randi([1 slen-slenval+1],1);
 % val_index = slen - slenval + 1; % Use last portion of stimulus as validation
 ntrain=sum(sets); % Number of total training sets

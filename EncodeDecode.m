@@ -1,22 +1,20 @@
 % MAT file: 
 % - 'sps' (spike trains, each column represents a unique cell
-% - 'Stim' (stimulus, assumes Gaussian but can change in Section 8)
-% - 'dt' (time step)
+% - 'Stim' (stimulus, assumes Gaussian but can change in Section 8
 load('FakeData_All.mat') 
 
-runs = 1000; % Number of networks randomly selected for each network size
+runs = 2;
 cell_choice = 1:1:size(sps,2); % Index for relevant neurons
 N = [1 2 3 4 5]; % Network sizes being studied
 range = 500; % Range of time interval (ms) from which cells are randomly selected
-fraction = 0.1; % Fraction of total time series for each training set
+train_frac = 0.1; % Fraction of total time series for each training set
 val_frac=0.3; % Fraction of training set length for validation set
 
 % Set GLM parameters for fitting, including bases 
 nkt = 160;    % Number of time bins in stimulus filter k
-hpeakFinal = .18;   % time (s) of peak of last basis vector for h
+hpeakFinal = .18;   % time of peak of last basis vector for h
 nkbasis = 15;  % number of basis vectors for representing k
 nhbasis = 15;  % number of basis vectors for representing h
-
 
 %% 1. CURATE DATA
 
@@ -25,7 +23,6 @@ sps = sps(1:slen,:);
 Stim = Stim(1:slen,:);
 swid = size(Stim,2);  % Stimulus width  (pixels); must match # pixels in stim filter
 tinit = dt*(0:1:slen-1).'; % Index for time
-
 
 %% 2. DOWNSAMPLING
 
@@ -48,7 +45,6 @@ tstep=tstep.';
 Stim = Stim.';
 sps = tempsps;
 
-
 %% 3. SET UP TRAINING AND VALIDATION SETS
 
 for popsize = 1:length(N)
@@ -57,8 +53,8 @@ for popsize = 1:length(N)
     stimhet = zeros(runs,1);
     posthet = zeros(runs,1);
     biashet = zeros(runs,1);
-    stimulus_mat = zeros(floor(val_frac*fraction*slen),runs);
-    optimal_mat = zeros(floor(val_frac*fraction*slen),runs);
+    stimulus_mat = zeros(floor(val_frac*train_frac*slen),runs);
+    optimal_mat = zeros(floor(val_frac*train_frac*slen),runs);
     choleskyflag = zeros(runs,1);
     
 for k=1:runs
@@ -68,14 +64,12 @@ clearvars ntrain set_index Stimtrain Stimval spstrain spsval ttrain tval slentra
 y = datasample(cell_choice,ncells);
 sets = histcounts(y,length(cell_choice)); % Number of training sets from each cell
 
-[ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets(sets,range,fraction,Stim,sps,tstep);
-
+[ntrain,set_index,Stimtrain,Stimval,spstrain,spsval,ttrain,tval,slentrain,slenval] = EncodingSets(sets,range,train_frac,val_frac,Stim,sps,tstep);
 
 %% 4.  SET PARAMETERS AND DISPLAY FOR GLM
 
 % makeSimStruct_GLM(nkt,dtStim,dtSp) 
 ggsim = makeSimStruct_GLM(nkt,dt,dt); % Create GLM structure with default params
-
 
 %% 5. SETUP FITTING PARAMETERS FOR RANDOMLY SELECTED TRAINING SET
 
@@ -111,7 +105,6 @@ clearvars tempneglog temprr
 negloglival0 = sum(negloglival0_partial);
 fprintf('Initial negative log-likelihood: %.5f\n', negloglival0);
 
-
 %% 6. Do ML FITTING OF GLMs
 
 % Because the cells are uncoupled, the encoding models are done separately
@@ -128,7 +121,6 @@ clearvars tempgg1 tempnegloglival
 negloglival1 = sum(negloglival1_partial);
 fprintf('Model negative log-likelihood: %.5f\n', negloglival1);
 
-
 %% 7. DETERMINE AUTOCORRELATION STRUCTURE OF STIMULUS
 corrlength = floor(val_frac*slentrain);
 Burn = 0;
@@ -138,7 +130,6 @@ acf(end+1:end+Burn) = 0;
 stimCovMat = toeplitz(acf);
 
 numStims= size(Stimval,2);
-
 
 %% 8. SET UP PRIOR FOR STIMULUS DECODING
 
@@ -155,7 +146,6 @@ end
 stimprior = stimprior(Burn+1:end,:);
 stimCovMat= stimCovMat(Burn+1:end, Burn+1:end);
 
-
 %% 9. CALL GLMs FOR REQUESTED CELLS
 
 numModels = length(gg1);
@@ -166,7 +156,6 @@ numSimRepeats = 50;
 testInterval = [0 nkt];
 maxSpikes = 100;
 
-
 %% 10. INITIATE BAYES STIM DECODER
 
 stimInterval = [tval(1,:); tval(corrlength,:)];
@@ -174,8 +163,7 @@ dtDecoding = dt;
 initStim=stimprior;
 
 spikeTimes = spsval;
-[optStim, exitflag, fval, hessian] = bayesStimDecoder(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim);
-
+[optStim, exitflag, fval, hessian] = bayesStimDecoder_Fall2019(cellModels, spikeTimes, stimInterval, dtDecoding, stimCovMat, initStim);
 
 %% 11. HETEROGENEITY AND ERROR CALCULATION
 
